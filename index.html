@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <meta property="og:title" content="隨機強度密碼產生器" />
+        <meta property="og:description" content="使用隨機強度密碼產生器建立夠長且真正隨機的密碼，真的方便又省時很多，不用再為了密碼而想破頭。" />
+        <meta property="og:locale" content="zh_TW" />
+        <meta property="og:type" content="website" />
+        <link rel="stylesheet" href="css/random-password-generator.css" />
+        <title>隨機強度密碼產生器</title>
+    </head>
+    <body>
+        <div id="app">
+            <section class="wrapper">
+                <h1>隨機強度密碼產生器</h1>
+                <div class="password-box">
+                    <span id="password" class="password" v-on:click="copyToClipboard">{{ password }}</span>
+                    <span class="regenerate-password" v-on:click="generatePassword"></span>
+                    <span class="copy-password" v-on:click="copyToClipboard"></span>
+                    <span class="tooltip" v-if="copied">密碼複製成功！</span>
+                </div>
+                <form @keydown.enter.prevent="">
+                    <div class="field-wrap">
+                        <label>強度</label>
+                        <span class="range-value">{{strength.text}}</span>
+                        <div class="range-slider_wrapper slider-strength" v-bind:class="strength.text">
+                            <span class="slider-bar" v-bind:style="{ width: strength.score + '%' }"></span>
+                            <input type="range" class="range-slider" min="0" max="100" v-model="strength.score" disabled />
+                        </div>
+                    </div>
+                    <div class="seperator"></div>
+                    <div class="field-wrap">
+                        <label>長度</label>
+                        <span class="range-value">{{settings.length}}</span>
+                        <div class="range-slider_wrapper">
+                            <span class="slider-bar" v-bind:style="{ width: lengthThumbPosition + '%' }"></span>
+                            <input type="range" class="range-slider" min="6" v-bind:max="settings.maxLength" v-model="settings.length" />
+                        </div>
+                    </div>
+                    <div class="field-wrap">
+                        <label>數字</label>
+                        <span class="range-value">{{settings.digits}}</span>
+                        <div class="range-slider_wrapper">
+                            <span class="slider-bar" v-bind:style="{ width: digitsThumbPosition + '%' }"></span>
+                            <input type="range" class="range-slider" min="0" v-bind:max="settings.maxDigits" v-model="settings.digits" />
+                        </div>
+                    </div>
+                    <div class="field-wrap">
+                        <label>符號</label>
+                        <span class="range-value">{{settings.symbols}}</span>
+                        <div class="range-slider_wrapper">
+                            <span class="slider-bar" v-bind:style="{ width: symbolsThumbPosition + '%' }"></span>
+                            <input type="range" class="range-slider" min="0" v-bind:max="settings.maxSymbols" v-model="settings.symbols" />
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js" defer></script>
+        <script src="js/random-password-generator.js" defer></script>
+    </body>
+</html>
