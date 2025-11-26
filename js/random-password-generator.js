@@ -1,5 +1,4 @@
-new Vue({
-    el: '#app',
+const app = Vue.createApp({
     data() {
         return {
             password: '',
@@ -16,24 +15,24 @@ new Vue({
         };
     },
     computed: {
-        lengthThumbPosition: function() {
+        lengthThumbPosition() {
             return (((this.settings.length - 6) / (this.settings.maxLength - 6)) * 100);
         },
-        digitsThumbPosition: function() {
+        digitsThumbPosition() {
             return (((this.settings.digits - 0) / (this.settings.maxDigits - 0)) * 100);
         },
-        symbolsThumbPosition: function() {
+        symbolsThumbPosition() {
             return (((this.settings.symbols - 0) / (this.settings.maxSymbols - 0)) * 100);
         },
-        strength: function() {
-            var count = {
+        strength() {
+            let count = {
                 excess: 0,
                 upperCase: 0,
                 numbers: 0,
                 symbols: 0
             };
 
-            var weight = {
+            let weight = {
                 excess: 3,
                 upperCase: 4,
                 numbers: 5,
@@ -43,67 +42,57 @@ new Vue({
                 flatNumber: 0
             };
 
-            var strength = {
+            let strength = {
                 text: '',
                 score: 0
             };
 
-            var baseScore = 30;
+            let baseScore = 30;
 
-            for (i = 0; i < this.password.length; i++) {
-                if (this.password.charAt(i).match(/[A-Z]/g)) {
-                    count.upperCase++;
-                }
-                if (this.password.charAt(i).match(/[0-9]/g)) {
-                    count.numbers++;
-                }
-                if (this.password.charAt(i).match(/(.*[!,@,#,$,%,^,&,*,?,_,~])/)) {
-                    count.symbols++;
-                }
+            for (let i = 0; i < this.password.length; i++) {
+                if (/[A-Z]/.test(this.password[i])) count.upperCase++;
+                if (/[0-9]/.test(this.password[i])) count.numbers++;
+                if (/[!,@,#,$,%,^,&,*,?,_,~]/.test(this.password[i])) count.symbols++;
             }
 
             count.excess = this.password.length - 6;
 
             if (count.upperCase && count.numbers && count.symbols) {
                 weight.combo = 25;
-            } else if ((count.upperCase && count.numbers) || (count.upperCase && count.symbols) || (count.numbers && count.symbols)) {
+            } else if (
+                (count.upperCase && count.numbers) ||
+                (count.upperCase && count.symbols) ||
+                (count.numbers && count.symbols)
+            ) {
                 weight.combo = 15;
             }
 
-            if (this.password.match(/^[\sa-z]+$/)) {
-                weight.flatLower = -30;
-            }
+            if (/^[\sa-z]+$/.test(this.password)) weight.flatLower = -30;
+            if (/^[\s0-9]+$/.test(this.password)) weight.flatNumber = -50;
 
-            if (this.password.match(/^[\s0-9]+$/)) {
-                weight.flatNumber = -50;
-            }
-
-            var score =
+            let score =
                 baseScore +
                 (count.excess * weight.excess) +
                 (count.upperCase * weight.upperCase) +
                 (count.numbers * weight.numbers) +
                 (count.symbols * weight.symbols) +
-                weight.combo + weight.flatLower +
-                weight.flatNumber;
+                weight.combo + weight.flatLower + weight.flatNumber;
 
             if (score < 30) {
                 strength.text = "弱";
                 strength.score = 10;
-                return strength;
-            } else if (score >= 30 && score < 75) {
+            } else if (score < 75) {
                 strength.text = "普通";
                 strength.score = 40;
-                return strength;
-            } else if (score >= 75 && score < 150) {
+            } else if (score < 150) {
                 strength.text = "強";
                 strength.score = 75;
-                return strength;
             } else {
                 strength.text = "安全";
                 strength.score = 100;
-                return strength;
             }
+
+            return strength;
         },
     },
     mounted() {
@@ -111,7 +100,7 @@ new Vue({
     },
     watch: {
         settings: {
-            handler: function() {
+            handler() {
                 this.generatePassword();
             },
             deep: true
@@ -119,63 +108,43 @@ new Vue({
     },
     methods: {
         copyToClipboard() {
-            var copyElement = document.createElement("textarea");
+            const copyElement = document.createElement("textarea");
             copyElement.style.opacity = '0';
             copyElement.style.position = 'fixed';
             copyElement.textContent = this.password;
-            var body = document.getElementsByTagName('body')[0];
-            body.appendChild(copyElement);
+            document.body.appendChild(copyElement);
             copyElement.select();
             document.execCommand('copy');
-            body.removeChild(copyElement);
+            document.body.removeChild(copyElement);
 
             this.copied = true;
-            setTimeout(() => {
-                this.copied = false;
-            }, 750);
+            setTimeout(() => this.copied = false, 750);
         },
         generatePassword() {
-            var lettersSetArray = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
-            var symbolsSetArray = ["=", "+", "-", "^", "?", "!", "%", "&", "*", "$", "#", "^", "@", "|"];
-            var passwordArray = [];
-            var digitsArray = [];
-            var digitsPositionArray = [];
+            const letters = "abcdefghijklmnopqrstuvwxyz".split("");
+            const symbols = ["=", "+", "-", "^", "?", "!", "%", "&", "*", "$", "#", "^", "@", "|"];
+            let passwordArray = [];
+            let digitsPositionArray = [];
 
-            for (var i = 0; i < this.settings.length; i++) {
+            for (let i = 0; i < this.settings.length; i++) {
                 digitsPositionArray.push(i);
-
-                var upperCase = Math.round(Math.random() * 1);
-                if (upperCase === 0) {
-                    passwordArray[i] = lettersSetArray[Math.floor(Math.random() * lettersSetArray.length)].toUpperCase();
-                } else {
-                    passwordArray[i] = lettersSetArray[Math.floor(Math.random() * lettersSetArray.length)];
-                }
+                const letter = letters[Math.floor(Math.random() * letters.length)];
+                passwordArray[i] = Math.random() < 0.5 ? letter.toUpperCase() : letter;
             }
 
-            for (i = 0; i < this.settings.digits; i++) {
-                digit = Math.round(Math.random() * 9);
-                numberIndex = digitsPositionArray[Math.floor(Math.random() * digitsPositionArray.length)];
-
-                passwordArray[numberIndex] = digit;
-
-                var j = digitsPositionArray.indexOf(numberIndex);
-                if (i != -1) {
-                    digitsPositionArray.splice(j, 1);
-                }
+            for (let i = 0; i < this.settings.digits; i++) {
+                const numberIndex = digitsPositionArray.splice(Math.floor(Math.random() * digitsPositionArray.length), 1)[0];
+                passwordArray[numberIndex] = Math.floor(Math.random() * 10);
             }
 
-            for (i = 0; i < this.settings.symbols; i++) {
-                var symbol = symbolsSetArray[Math.floor(Math.random() * symbolsSetArray.length)];
-                var symbolIndex = digitsPositionArray[Math.floor(Math.random() * digitsPositionArray.length)];
-
-                passwordArray[symbolIndex] = symbol;
-
-                var j = digitsPositionArray.indexOf(symbolIndex);
-                if (i != -1) {
-                    digitsPositionArray.splice(j, 1);
-                }
+            for (let i = 0; i < this.settings.symbols; i++) {
+                const symbolIndex = digitsPositionArray.splice(Math.floor(Math.random() * digitsPositionArray.length), 1)[0];
+                passwordArray[symbolIndex] = symbols[Math.floor(Math.random() * symbols.length)];
             }
+
             this.password = passwordArray.join("");
-        },
-    },
+        }
+    }
 });
+
+app.mount('#app');

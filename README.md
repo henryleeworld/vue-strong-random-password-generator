@@ -11,5 +11,5 @@ $ git clone
 ----
 
 ## 畫面截圖
-![](https://i.imgur.com/t2FaOY2.gif)
+![](https://i.imgur.com/zsrjXHJ.gif)
 > 各種長度、數字和符號組成元素都能選擇
